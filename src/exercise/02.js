@@ -10,19 +10,15 @@ import {
   PokemonErrorBoundary,
 } from '../pokemon'
 
-
 function asyncReducer(state, action) {
   switch (action.type) {
     case 'pending': {
-      
       return {status: 'pending', data: null, error: null}
     }
     case 'resolved': {
-      
       return {status: 'resolved', data: action.data, error: null}
     }
     case 'rejected': {
-      
       return {status: 'rejected', data: null, error: action.error}
     }
     default: {
@@ -31,56 +27,49 @@ function asyncReducer(state, action) {
   }
 }
 
-function useAsync( initialState){
-  
-const [state, dispatch] = React.useReducer(asyncReducer, {
-    status: "idle",
+function useAsync(initialState) {
+  const [state, dispatch] = React.useReducer(asyncReducer, {
+    status: 'idle',
     data: null,
     error: null,
-    ...initialState
+    ...initialState,
   })
 
   const run = React.useCallback(promise => {
-      if (!promise) {
-        return
-      }
-  
-      dispatch({type: 'pending'})
-      promise.then(
-        data => {
-          dispatch({type: 'resolved', data})
-        },
-        error => {
-          dispatch({type: 'rejected', error})
-        },
-      )
+    if (!promise) {
+      return
+    }
+
+    dispatch({type: 'pending'})
+    promise.then(
+      data => {
+        dispatch({type: 'resolved', data})
+      },
+      error => {
+        dispatch({type: 'rejected', error})
+      },
+    )
   }, [])
-  
-
-  
-
-
-  
 
   return {...state, run}
-
 }
 
-
-
-
 function PokemonInfo({pokemonName}) {
+  const {
+    data: pokemon,
+    status,
+    error,
+    run,
+  } = useAsync({
+    status: pokemonName ? 'pending' : 'idle',
+  })
 
-  const {data: pokemon, status, error, run} = useAsync({
-  status: pokemonName ? 'pending' : 'idle',
-})
-
-React.useEffect(() => {
-  if (!pokemonName) {
-    return
-  }
-  run(fetchPokemon(pokemonName))
-}, [pokemonName, run])
+  React.useEffect(() => {
+    if (!pokemonName) {
+      return
+    }
+    run(fetchPokemon(pokemonName))
+  }, [pokemonName, run])
 
   if (status === 'idle') {
     return 'Submit a pokemon'
