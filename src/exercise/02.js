@@ -55,21 +55,24 @@ function useAsync(initialState) {
 
   const dispatch = useSafeDispatch(unsafeDispatch)
 
-  const run = React.useCallback(promise => {
-    if (!promise) {
-      return
-    }
+  const run = React.useCallback(
+    promise => {
+      if (!promise) {
+        return
+      }
 
-    dispatch({type: 'pending'})
-    promise.then(
-      data => {
-        dispatch({type: 'resolved', data})
-      },
-      error => {
-        dispatch({type: 'rejected', error})
-      },
-    )
-  }, [])
+      dispatch({type: 'pending'})
+      promise.then(
+        data => {
+          dispatch({type: 'resolved', data})
+        },
+        error => {
+          dispatch({type: 'rejected', error})
+        },
+      )
+    },
+    [dispatch],
+  )
 
   return {...state, run}
 }
